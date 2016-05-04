@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.audio.example" name="Example Kodi audio Plugin" version="0.0.1" provider-name="curti">
+<addon id="plugin.video.wordpress-tv" name="Wordpress TV Video Plugin" version="0.0.1" provider-name="a5hay">
     <requires>
         <import addon="xbmc.python" version="2.20.0" />
         <import addon="script.module.beautifulsoup4" version="4.3.2"/>
         <import addon="script.module.requests" version="2.9.1"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
-        <provides>audio</provides>
+        <provides>video</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
-        <summary lang="en">http://www.theaudiodb.com/testfiles/</summary>
-        <license>GNU General Public License, v2</license>
-        <description lang="en">Add-on tutorial for Audio using cc licensed audio from http://www.theaudiodb.com/</description>
+        <summary lang="en">https://github.com/a5hay/wordpress-tv</summary>
+        <license>MIT License</license>
+        <description lang="en">Video Files from Wordpress TV Site at http://wordpress.tv</description>
         <platform>all</platform>
     </extension>
 </addon>
