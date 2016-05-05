@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.wordpress-tv" name="Wordpress TV Video Plugin" version="0.0.1" provider-name="a5hay">
+<addon id="plugin.video.wordpresstv" name="Wordpress TV Plugin" version="0.0.1" provider-name="a5hay">
     <requires>
-        <import addon="xbmc.python" version="2.20.0" />
+        <import addon="xbmc.python" version="2.20.0"/>
         <import addon="script.module.beautifulsoup4" version="4.3.2"/>
         <import addon="script.module.requests" version="2.9.1"/>
     </requires>
@@ -13,5 +13,6 @@
         <license>MIT License</license>
         <description lang="en">Video Files from Wordpress TV Site at http://wordpress.tv</description>
         <platform>all</platform>
+        <email>p0laris@gmx.com</email>
     </extension>
 </addon>
