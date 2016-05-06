@@ -1,92 +1,104 @@
-# https://docs.python.org/2.7/
 import os
 import sys
 import urllib
 import urlparse
-# http://mirrors.kodi.tv/docs/python-docs/
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
-# http://docs.python-requests.org/en/latest/
 import requests
-# http://www.crummy.com/software/BeautifulSoup/bs4/doc/
 from bs4 import BeautifulSoup
 
-def build_url(query):
-    base_url = sys.argv[0]
-    return base_url + '?' + urllib.urlencode(query)
-    
-def get_page(url):
-    # download the source HTML for the page using requests
-    # and parse the page using BeautifulSoup
-    return BeautifulSoup(requests.get(url).text, 'html.parser')
-    
-def parse_page(page):
-    songs = {}
-    index = 1
-    # the sample below is specific for the page we are scraping
-    # you will need to view the source of the page(s) you are
-    # planning to scrape to find the content you want to display
-    # this will return all the <a> elements on the page:
-    # <a href="some_url">some_text</a>
-    for item in page.find_all('a'):
-        # the item contains a link to an album cover
-        if item['href'].find('.jpg') > 1:
-            # format the url for the album cover to include the site url and url encode any spaces
-            album_cover = '{0}{1}'.format(sample_page, item['href'].replace(' ', '%20'))
-        # the item contains a link to a song containing '.mp3'
-        if item['href'].find('.mp3') > 1:
-            # update dictionary with the album cover url, song filename, and song url
-            songs.update({index: {'album_cover': album_cover, 'title': item['href'], 'url': '{0}{1}'.format(sample_page, item['href'])}})
-            index += 1
-    return songs
-    
-def build_song_list(songs):
-    song_list = []
-    # iterate over the contents of the dictionary songs to build the list
-    for song in songs:
-        # create a list item using the song filename for the label
-        li = xbmcgui.ListItem(label=songs[song]['title'], thumbnailImage=songs[song]['album_cover'])
-        # set the fanart to the albumc cover
-        li.setProperty('fanart_image', songs[song]['album_cover'])
-        # set the list item to playable
-        li.setProperty('IsPlayable', 'true')
-        # build the plugin url for Kodi
-        # Example: plugin://plugin.audio.example/?url=http%3A%2F%2Fwww.theaudiodb.com%2Ftestfiles%2F01-pablo_perez-your_ad_here.mp3&mode=stream&title=01-pablo_perez-your_ad_here.mp3
-        url = build_url({'mode': 'stream', 'url': songs[song]['url'], 'title': songs[song]['title']})
-        # add the current list item to a list
-        song_list.append((url, li, False))
-    # add list to Kodi per Martijn
-    # http://forum.kodi.tv/showthread.php?tid=209948&pid=2094170#pid2094170
-    xbmcplugin.addDirectoryItems(addon_handle, song_list, len(song_list))
-    # set the content of the directory
-    xbmcplugin.setContent(addon_handle, 'songs')
-    xbmcplugin.endOfDirectory(addon_handle)
-    
-def play_song(url):
-    # set the path of the song to a list item
-    play_item = xbmcgui.ListItem(path=url)
-    # the list item is ready to be played by Kodi
-    xbmcplugin.setResolvedUrl(addon_handle, True, listitem=play_item)
-    
-def main():
-    args = urlparse.parse_qs(sys.argv[2][1:])
-    mode = args.get('mode', None)
-    
-    # initial launch of add-on
-    if mode is None:
-        # get the HTML for http://www.theaudiodb.com/testfiles/
-        page = get_page(sample_page)
-        # get the content needed from the page
-        content = parse_page(page)
-        # display the list of songs in Kodi
-        build_song_list(content)
-    # a song from the list has been selected
-    elif mode[0] == 'stream':
-        # pass the url of the song to play_song
-        play_song(args['url'][0])
-    
-if __name__ == '__main__':
-    sample_page = 'http://www.theaudiodb.com/testfiles/'
-    addon_handle = int(sys.argv[1])
-    main()
+
+# Looping through pages
+
+def homePage(url):
+    addDir('WordCamp TV', url, 4, "DefaultAddonVideo.png", None, "wordCampTv")
+    addDir('Related Events', url, 4, "DefaultAddonVideo.png", None, "relatedEvents")
+    addDir('How To', url, 4, "DefaultAddonVideo.png", None, "howTo")
+    addDir('Search', url, 4, "DefaultAddonVideo.png", None, "search")
+
+
+# Utility Methods
+
+def addDir(name, url, mode, iconimage, fanart=None, scrape_type=None, isFolder=True, info=None):
+    params = get_params()
+    ok = True
+    u = sys.argv[0] + "?url=" + urllib.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.quote_plus(
+        name) + "&scrape_type=" + urllib.quote_plus(str(scrape_type)) + "&icon_image=" + urllib.quote_plus(
+        str(iconimage))
+    liz = xbmcgui.ListItem(name, iconImage=iconimage, thumbnailImage=iconimage)
+    liz.setInfo(type="Video", infoLabels={"Title": name})
+    if info != None:
+        liz.setInfo(type="Video", infoLabels=info)
+
+    liz.setProperty('fanart_image', fanart)
+    ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=isFolder)
+    xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
+    return ok
+
+
+def get_params():
+    param = []
+    paramstring = sys.argv[2]
+    if len(paramstring) >= 2:
+        params = sys.argv[2]
+        cleanedparams = params.replace('?', '')
+        if (params[len(params) - 1] == '/'):
+            params = params[0:len(params) - 2]
+        pairsofparams = cleanedparams.split('&')
+        param = {}
+        for i in range(len(pairsofparams)):
+            splitparams = {}
+            splitparams = pairsofparams[i].split('=')
+            if (len(splitparams)) == 2:
+                param[splitparams[0]] = splitparams[1]
+
+    return param
+
+
+params = get_params()
+url = None
+name = None
+mode = None
+scrape_type = None
+icon_image = None
+
+try:
+    url = urllib.unquote_plus(params["url"])
+except:
+    pass
+try:
+    name = urllib.unquote_plus(params["name"])
+except:
+    pass
+try:
+    mode = int(params["mode"])
+except:
+    pass
+try:
+    scrape_type = urllib.unquote_plus(params["scrape_type"])
+except:
+    pass
+try:
+    icon_image = urllib.unquote_plus(params["icon_image"])
+except:
+    pass
+
+print "Mode: " + str(mode)
+print "URL: " + str(url)
+print "Name: " + str(name)
+print "scrape_type:" + str(scrape_type)
+print "icon image:" + str(icon_image)
+
+if mode == None or url == None or len(url) < 1:
+    homePage()
+# elif mode == 1:
+#     LIVE_AND_UPCOMING()
+# elif mode == 2:
+#     FEATURED(url)
+# elif mode == 3:
+#     GET_ALL_SPORTS()
+# elif mode == 4:
+#     SCRAPE_VIDEOS(url, scrape_type)
+
+xbmcplugin.endOfDirectory(int(sys.argv[1]))
