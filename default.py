@@ -11,7 +11,8 @@ from bs4 import BeautifulSoup
 
 # Looping through pages
 
-def homePage(url):
+def homePage():
+    url='http://google.com'
     addDir('WordCamp TV', url, 4, "DefaultAddonVideo.png", None, "wordCampTv")
     addDir('Related Events', url, 4, "DefaultAddonVideo.png", None, "relatedEvents")
     addDir('How To', url, 4, "DefaultAddonVideo.png", None, "howTo")
